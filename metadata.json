@@ -1,0 +1,6 @@
+{
+  "name": "FilaTáxi Angola",
+  "description": "Plataforma oficial de gestão digital de filas de táxi colectivo e geolocalização em tempo real em Luanda, Angola.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
