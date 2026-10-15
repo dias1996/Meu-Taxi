@@ -9,6 +9,35 @@ import { LiveMapView, LUANDA_PRACAS, PracaLocation } from './components/LiveMapV
 import { PassengerArea } from './components/PassengerArea';
 import { DriverArea } from './components/DriverArea';
 import { InspectorArea } from './components/InspectorArea';
+import { AdminArea } from './components/AdminArea';
+import { LoginScreen } from './components/LoginScreen';
+import {
+  INITIAL_PASSENGERS,
+  INITIAL_DRIVERS,
+  INITIAL_VEHICLES,
+  INITIAL_FISCAIS,
+  INITIAL_PRACAS,
+  INITIAL_ROUTES,
+  INITIAL_QUEUES,
+  INITIAL_INTERVENTIONS,
+  INITIAL_TRIPS,
+  INITIAL_PAYMENTS,
+  INITIAL_INCIDENTS,
+} from './data/ecosystemData';
+import {
+  PassengerRecord,
+  DriverRecord,
+  VehicleRecord,
+  FiscalRecord,
+  PracaRecord,
+  RouteRecord,
+  QueueItemRecord,
+  QueueInterventionRecord,
+  TripRecordAdmin,
+  PaymentRecord,
+  IncidentRecord,
+  AuthUser,
+} from './types/ecosystem';
 
 export type UserRole = 'passenger' | 'driver' | 'inspector' | 'admin';
 
@@ -57,9 +86,207 @@ export default function App() {
   // Quota Exceeded State (Google Maps Platform Demo Key requirement)
   const [quotaExceeded, setQuotaExceeded] = useState(false);
 
+  // Utilizador Autenticado e Ecrã de Login
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_auth_user');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return null; // Quando null, apresenta o LoginScreen conforme solicitado!
+  });
+
   // 4 Execution Levels (Passageiro, Motorista, Fiscal, Administração)
-  const [userRole, setUserRole] = useState<UserRole>('passenger');
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_auth_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.role) return parsed.role;
+      }
+    } catch {}
+    return 'passenger';
+  });
   const [roleModalOpen, setRoleModalOpen] = useState(false);
+
+  const handleLoginSuccess = (user: AuthUser) => {
+    setCurrentUser(user);
+    setUserRole(user.role);
+    try {
+      localStorage.setItem('filataxi_auth_user', JSON.stringify(user));
+    } catch {}
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('filataxi_auth_user');
+    } catch {}
+    showModal('Sessão Terminada', 'A sua sessão foi encerrada com sucesso.', 'logout');
+  };
+
+  // =========================================================================
+  // ECOSSISTEMA COMPARTILHADO & SINCRONIA GERAL (PASSAGEIRO, MOTORISTA, FISCAL, ADMIN)
+  // =========================================================================
+  const [passengersList, setPassengersList] = useState<PassengerRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_passengers_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_PASSENGERS;
+  });
+
+  const [driversList, setDriversList] = useState<DriverRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_drivers_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_DRIVERS;
+  });
+
+  const [vehiclesList, setVehiclesList] = useState<VehicleRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_vehicles_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_VEHICLES;
+  });
+
+  const [fiscaisList, setFiscaisList] = useState<FiscalRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_fiscais_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_FISCAIS;
+  });
+
+  const [pracasList, setPracasList] = useState<PracaRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_pracas_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_PRACAS;
+  });
+
+  const [routesList, setRoutesList] = useState<RouteRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_routes_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_ROUTES;
+  });
+
+  const [queuesList, setQueuesList] = useState<QueueItemRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_queues_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_QUEUES;
+  });
+
+  const [interventionsList, setInterventionsList] = useState<QueueInterventionRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_interventions_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_INTERVENTIONS;
+  });
+
+  const [tripsList, setTripsList] = useState<TripRecordAdmin[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_trips_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_TRIPS;
+  });
+
+  const [paymentsList, setPaymentsList] = useState<PaymentRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_payments_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_PAYMENTS;
+  });
+
+  const [incidentsList, setIncidentsList] = useState<IncidentRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('filataxi_incidents_list');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_INCIDENTS;
+  });
+
+  // Salvar no localStorage para persistência e reatividade contínua
+  useEffect(() => {
+    try {
+      localStorage.setItem('filataxi_passengers_list', JSON.stringify(passengersList));
+      localStorage.setItem('filataxi_drivers_list', JSON.stringify(driversList));
+      localStorage.setItem('filataxi_vehicles_list', JSON.stringify(vehiclesList));
+      localStorage.setItem('filataxi_fiscais_list', JSON.stringify(fiscaisList));
+      localStorage.setItem('filataxi_pracas_list', JSON.stringify(pracasList));
+      localStorage.setItem('filataxi_routes_list', JSON.stringify(routesList));
+      localStorage.setItem('filataxi_queues_list', JSON.stringify(queuesList));
+      localStorage.setItem('filataxi_interventions_list', JSON.stringify(interventionsList));
+      localStorage.setItem('filataxi_trips_list', JSON.stringify(tripsList));
+      localStorage.setItem('filataxi_payments_list', JSON.stringify(paymentsList));
+      localStorage.setItem('filataxi_incidents_list', JSON.stringify(incidentsList));
+    } catch {}
+  }, [
+    passengersList,
+    driversList,
+    vehiclesList,
+    fiscaisList,
+    pracasList,
+    routesList,
+    queuesList,
+    interventionsList,
+    tripsList,
+    paymentsList,
+    incidentsList,
+  ]);
+
+  // PWA Online/Offline Status Tracking
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      showModal('Ligação Restaurada', 'Conexão com a rede de Luanda restabelecida. Sincronização em tempo real ativa.', 'wifi');
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      showModal('Modo Offline Ativo', 'Sem conexão com a internet. A operar com dados em cache local (PWA Offline).', 'wifi_off');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const requestPushNotifications = async () => {
+    triggerVibrate();
+    if (!('Notification' in window)) {
+      showModal('Notificações Indisponíveis', 'O seu navegador não suporta notificações Push nativas.', 'info');
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      new Notification('FilaTáxi AO • Alerta em Tempo Real', {
+        body: 'Notificações Push ativadas com sucesso! Será alertado quando for a sua vez na fila.',
+        icon: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=192&h=192&fit=crop&q=80',
+      });
+      showModal('Push Ativado', 'Notificações push em tempo real ativadas com sucesso.', 'notifications_active');
+    } else {
+      showModal('Permissão Negada', 'Pode ativar as notificações nas definições do seu navegador.', 'notifications_off');
+    }
+  };
+
+  const joaoStatus = useMemo(() => {
+    return driversList.find((d) => d.id === 'driv-01')?.statusConta || 'pendente';
+  }, [driversList]);
 
   // Navigation & View States
   const [activeTab, setActiveTab] = useState<MainTab>('inicio');
@@ -120,6 +347,70 @@ export default function App() {
   const [sosModalOpen, setSosModalOpen] = useState(false);
   const [sosActivated, setSosActivated] = useState(false);
   const [passengerCountCurrent, setPassengerCountCurrent] = useState<number>(14);
+
+  // EMIS / Multicaixa Express Real Payment Gateway & Webhook States
+  const [emisModalOpen, setEmisModalOpen] = useState(false);
+  const [emisPayment, setEmisPayment] = useState<{
+    id: string;
+    tipo: 'quota' | 'bilhete' | 'taxa' | 'multa';
+    titulo: string;
+    entidade: string;
+    referencia: string;
+    montanteKz: number;
+    estado: 'Pendente' | 'Confirmado';
+    dataCriacao: string;
+  }>({
+    id: 'EMIS-TX-99214',
+    tipo: 'quota',
+    titulo: 'Quota Mensal Sócio ANATA / FilaTáxi',
+    entidade: '00182',
+    referencia: '982 419 302',
+    montanteKz: 5000,
+    estado: 'Pendente',
+    dataCriacao: new Date().toLocaleString('pt-AO'),
+  });
+
+  const handleOpenEmisPayment = (tipo: 'quota' | 'bilhete' | 'taxa' | 'multa', titulo: string, montanteKz: number) => {
+    triggerVibrate();
+    const refNum = `${Math.floor(100 + Math.random() * 900)} ${Math.floor(100 + Math.random() * 900)} ${Math.floor(100 + Math.random() * 900)}`;
+    setEmisPayment({
+      id: `EMIS-TX-${Math.floor(10000 + Math.random() * 90000)}`,
+      tipo,
+      titulo,
+      entidade: '00182',
+      referencia: refNum,
+      montanteKz,
+      estado: 'Pendente',
+      dataCriacao: new Date().toLocaleString('pt-AO'),
+    });
+    setEmisModalOpen(true);
+  };
+
+  const handleSimulateEmisWebhook = () => {
+    triggerVibrate();
+    setEmisPayment((prev) => ({ ...prev, estado: 'Confirmado' }));
+    
+    const newRecord: PaymentRecord = {
+      id: emisPayment.id,
+      referencia: emisPayment.referencia,
+      valorKz: emisPayment.montanteKz,
+      metodo: 'Transferência Multicaixa',
+      estado: 'Confirmado',
+      prestadorConfirmado: true,
+      dataHora: new Date().toLocaleString('pt-AO'),
+      viagemId: 'TRIP-' + Math.floor(1000 + Math.random() * 9000),
+      passageiroNome: currentUser?.nome || 'João Manuel',
+      motoristaNome: 'João Manuel (Sócio ANATA)',
+      descricao: `${emisPayment.titulo} - Ref: ${emisPayment.referencia} (EMIS Multicaixa Express)`,
+    };
+    setPaymentsList((prev) => [newRecord, ...prev]);
+
+    showModal(
+      'Webhook EMIS: Pagamento Confirmado!',
+      `O webhook interbancário notificou a liquidação de ${emisPayment.montanteKz.toLocaleString('pt-AO')} Kz via Multicaixa Express. Registo atualizado com sucesso em tempo real.`,
+      'verified'
+    );
+  };
 
   // Real-time Geolocation State
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>({
@@ -358,6 +649,52 @@ export default function App() {
         return 'Perfil & Acesso';
     }
   };
+
+  if (!currentUser) {
+    return (
+      <APIProvider apiKey={GOOGLE_MAPS_API_KEY} language="pt-AO" region="AO">
+        <LoginScreen
+          onLoginSuccess={handleLoginSuccess}
+          onExploreAsGuest={() => {
+            handleLoginSuccess({
+              id: 'usr-guest',
+              nome: 'Visitante',
+              telefone: '+244 900 000 000',
+              role: 'passenger',
+              dataLogin: new Date().toLocaleDateString('pt-AO'),
+            });
+          }}
+          onTriggerNotice={showModal}
+          triggerVibrate={triggerVibrate}
+          setPassengers={setPassengersList}
+          setDrivers={setDriversList}
+          setFiscais={setFiscaisList}
+        />
+        {/* Notice Modal */}
+        {noticeModal.open && (
+          <div className="fixed inset-0 bg-primary/60 backdrop-blur-sm z-50 flex items-end justify-center p-4">
+            <div className="bg-surface-container-lowest w-full max-w-sm rounded-xl p-space-lg shadow-xl flex flex-col gap-3">
+              <div className="w-12 h-12 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center mx-auto">
+                <span className="material-symbols-outlined text-[28px]">{noticeModal.icon}</span>
+              </div>
+              <h3 className="font-headline-sm text-headline-sm text-on-surface text-center">
+                {noticeModal.title}
+              </h3>
+              <p className="font-body-md text-body-md text-on-surface-variant text-center">
+                {noticeModal.message}
+              </p>
+              <button
+                onClick={() => setNoticeModal((prev) => ({ ...prev, open: false }))}
+                className="w-full py-3 rounded-xl bg-primary text-on-primary font-label-lg active:scale-95 transition-transform cursor-pointer"
+              >
+                Compreendi
+              </button>
+            </div>
+          </div>
+        )}
+      </APIProvider>
+    );
+  }
 
   return (
     <APIProvider apiKey={GOOGLE_MAPS_API_KEY} language="pt-AO" region="AO">
@@ -653,7 +990,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Ferramentas em Viagem: FilaPay, WhatsApp & SOS */}
+                    {/* Ferramentas em Viagem: WhatsApp & SOS */}
                     <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-2">
                       <div className="flex items-center justify-between text-xs pb-1 border-b border-surface-container">
                         <span className="font-bold text-primary flex items-center gap-1.5">
@@ -662,8 +999,8 @@ export default function App() {
                           </span>
                           Ferramentas em Viagem
                         </span>
-                        <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
-                          Multicaixa & Segurança
+                        <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
+                          Segurança & Viagem
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -854,8 +1191,7 @@ export default function App() {
           /* STANDARD SHELL WITH HEADER & BOTTOM NAVIGATION            */
           /* ========================================================= */
           <>
-            {activeTab !== 'perfil' && (
-              <header className="fixed top-0 inset-x-0 max-w-md mx-auto z-40 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
+            <header className="fixed top-0 inset-x-0 max-w-md mx-auto z-40 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
                 <div className="h-16 px-gutter flex items-center justify-between gap-gutter-sm">
                   <div className="flex items-center gap-space-sm">
                     <img
@@ -914,6 +1250,23 @@ export default function App() {
                       </span>
                     </button>
                     <button
+                      onClick={requestPushNotifications}
+                      className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container cursor-pointer relative"
+                      title="Ativar Notificações Push & Alertas em Tempo Real"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">notifications_active</span>
+                      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                    </button>
+                    <div
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shrink-0 ${
+                        isOnline ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800 animate-pulse'
+                      }`}
+                      title={isOnline ? 'Rede Online (Sincronização Ativa)' : 'Modo Offline (PWA Local Ativo)'}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                      <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
+                    </div>
+                    <button
                       aria-label="Notificações"
                       onClick={() =>
                         showModal(
@@ -941,6 +1294,7 @@ export default function App() {
                         }
                       }}
                       className="rounded-full overflow-hidden focus:outline-none cursor-pointer"
+                      title={currentUser?.nome || 'Perfil'}
                     >
                       <img
                         alt="Profile"
@@ -948,6 +1302,14 @@ export default function App() {
                         src={driverPassportPhoto || PROFILE_AVATAR_URL}
                         referrerPolicy="no-referrer"
                       />
+                    </button>
+                    <button
+                      aria-label="Terminar Sessão"
+                      onClick={handleLogout}
+                      className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 active:scale-95 transition-all cursor-pointer shadow-2xs"
+                      title="Terminar Sessão / Voltar ao Login"
+                    >
+                      <span className="material-symbols-outlined text-[19px]">logout</span>
                     </button>
                   </div>
                 </div>
@@ -963,14 +1325,11 @@ export default function App() {
                   </span>
                 </div>
               </header>
-            )}
 
             <main
               className={`flex flex-col relative w-full flex-1 bg-surface ${
                 userRole === 'passenger'
-                  ? 'pt-24 pb-6'
-                  : activeTab === 'perfil'
-                  ? 'pb-24'
+                  ? 'pt-24 pb-24'
                   : 'pt-28 pb-24'
               }`}
             >
@@ -1018,6 +1377,21 @@ export default function App() {
                   onSwitchToPassenger={() => setUserRole('passenger')}
                   onSwitchToInspector={() => setUserRole('inspector')}
                   onSwitchToAdmin={() => setUserRole('admin')}
+                  driverAccountStatus={joaoStatus}
+                  queues={queuesList}
+                  setQueues={setQueuesList}
+                  trips={tripsList}
+                  setTrips={setTripsList}
+                  incidents={incidentsList}
+                  setIncidents={setIncidentsList}
+                  payments={paymentsList}
+                  setPayments={setPaymentsList}
+                  drivers={driversList}
+                  setDrivers={setDriversList}
+                  vehicles={vehiclesList}
+                  currentTab={activeTab}
+                  onTabChange={(tab) => setActiveTab(tab as MainTab)}
+                  onLogout={handleLogout}
                 />
               ) : userRole === 'inspector' ? (
                 /* ========================================================= */
@@ -1036,170 +1410,37 @@ export default function App() {
                 />
               ) : userRole === 'admin' ? (
                 /* ========================================================= */
-                /* NÍVEL 4: ÁREA ADMINISTRATIVA (HOMOLOGAÇÃO E SUPERVISÃO)   */
+                /* NÍVEL 4: ÁREA ADMINISTRATIVA TOTALMENTE MÓVEL (LUANDA)   */
                 /* ========================================================= */
-                <div className="flex flex-col w-full px-gutter space-y-4 pt-2 pb-12">
-                  <div className="bg-surface-container-lowest p-4 rounded-2xl shadow-sm space-y-3">
-                    <div className="flex items-center justify-between border-b border-surface-container pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-fixed flex items-center justify-center font-bold">
-                          <span className="material-symbols-outlined text-[22px]">admin_panel_settings</span>
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-sm text-primary">Área Administrativa Central</h3>
-                          <p className="text-[11px] text-on-surface-variant">
-                            Supervisão ANATA / ATL & Homologação de Contas
-                          </p>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-full bg-primary text-on-primary text-[10px] font-bold">
-                        Supervisão Geral
-                      </span>
-                    </div>
-
-                    {/* Módulo de Homologação de Motoristas */}
-                    <div className="p-3.5 rounded-xl bg-surface-container-low text-xs space-y-2">
-                      <div className="flex items-center justify-between">
-                        <strong className="text-primary font-bold">Homologação de Novos Motoristas</strong>
-                        <span className="text-[11px] text-amber-800 font-bold">1 Pendente</span>
-                      </div>
-                      <div className="p-2.5 rounded-lg bg-surface-container-lowest border border-surface-container space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-primary">João Manuel</span>
-                          <span className="px-2 py-0.2 rounded-full bg-[#ffeed9] text-[#c45e00] text-[10px] font-bold">
-                            Pendente
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-on-surface-variant">
-                          Carta: CARTA-001 • Matrícula: LD-00-00-XX (Táxi 15 Lugares)
-                        </p>
-                        <div className="flex gap-2 pt-1">
-                          <button
-                            onClick={() => {
-                              triggerVibrate();
-                              showModal(
-                                'Motorista Aprovado pela Central',
-                                'Conta de João Manuel homologada com sucesso pela Administração. O motorista pode agora operar em Luanda após validação do Fiscal.',
-                                'verified'
-                              );
-                            }}
-                            className="flex-1 py-1.5 bg-emerald-700 text-white font-bold text-xs rounded-lg active:scale-95 transition-transform cursor-pointer"
-                          >
-                            Homologar / Aprovar
-                          </button>
-                          <button
-                            onClick={() => {
-                              triggerVibrate();
-                              showModal(
-                                'Registo Rejeitado',
-                                'Candidatura rejeitada por inconformidade documental. Notificação enviada por SMS.',
-                                'error'
-                              );
-                            }}
-                            className="px-3 py-1.5 bg-rose-50 text-rose-800 border border-rose-200 font-bold text-xs rounded-lg cursor-pointer"
-                          >
-                            Rejeitar
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* MÓDULO ETAPA 4: CREDENCIAMENTO & GESTÃO DE FISCAIS */}
-                    <div className="p-3.5 rounded-xl bg-surface-container-low text-xs space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <span className="material-symbols-outlined text-[17px] text-secondary">badge</span>
-                          <strong className="text-primary font-bold">Credenciamento & Contas de Fiscais</strong>
-                        </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                          3 Fiscais Ativos
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-on-surface-variant leading-relaxed">
-                        Contas criadas e autorizadas pela Administração com identificação funcional, praça atribuída e permissões para vistorias, despacho e ocorrências.
-                      </p>
-
-                      <div className="space-y-1.5">
-                        <div className="p-2 rounded-lg bg-surface-container-lowest border border-surface-container flex items-center justify-between">
-                          <div>
-                            <strong className="text-primary block">Mateus Afonso Domingos</strong>
-                            <span className="text-[10px] text-on-surface-variant font-mono">
-                              ANATA-FIS-042/LU • Praça São Paulo
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                            Autorizado
-                          </span>
-                        </div>
-                        <div className="p-2 rounded-lg bg-surface-container-lowest border border-surface-container flex items-center justify-between">
-                          <div>
-                            <strong className="text-primary block">António Kapita</strong>
-                            <span className="text-[10px] text-on-surface-variant font-mono">
-                              ATL-FIS-018/LU • Praça Viana (Estalagem)
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                            Autorizado
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2 pt-1">
-                        <button
-                          onClick={() => {
-                            triggerVibrate();
-                            setUserRole('inspector');
-                          }}
-                          className="flex-1 py-2 bg-primary text-on-primary font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-transform"
-                        >
-                          <span className="material-symbols-outlined text-[16px] text-secondary-container">badge</span>
-                          <span>Abrir Posto Operacional do Fiscal</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Supervisão das 6 Praças de Luanda */}
-                    <div className="space-y-1.5 text-xs pt-1">
-                      <span className="font-bold text-primary block">Rede Oficial de Praças de Luanda:</span>
-                      <div className="grid grid-cols-2 gap-2">
-                        {LUANDA_PRACAS.slice(0, 4).map((p) => (
-                          <div key={p.id} className="p-2.5 rounded-xl bg-surface-container-low">
-                            <strong className="text-primary block truncate">{p.name}</strong>
-                            <span className="text-[10px] text-on-surface-variant block">
-                              {p.naFila} táxis na fila • {p.corridor}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Alternar Rápido de Nível */}
-                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-surface-container">
-                      <button
-                        onClick={() => {
-                          triggerVibrate();
-                          setUserRole('driver');
-                        }}
-                        className="py-2.5 bg-primary text-on-primary font-bold text-xs rounded-xl flex items-center justify-center gap-1 cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[16px] text-secondary-container">
-                          local_taxi
-                        </span>
-                        Área do Motorista
-                      </button>
-                      <button
-                        onClick={() => {
-                          triggerVibrate();
-                          setUserRole('passenger');
-                        }}
-                        className="py-2.5 bg-surface-container text-primary font-bold text-xs rounded-xl flex items-center justify-center gap-1 cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">person</span>
-                        Área do Passageiro
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <AdminArea
+                  passengers={passengersList}
+                  setPassengers={setPassengersList}
+                  drivers={driversList}
+                  setDrivers={setDriversList}
+                  vehicles={vehiclesList}
+                  setVehicles={setVehiclesList}
+                  fiscais={fiscaisList}
+                  setFiscais={setFiscaisList}
+                  pracas={pracasList}
+                  setPracas={setPracasList}
+                  routes={routesList}
+                  setRoutes={setRoutesList}
+                  queues={queuesList}
+                  setQueues={setQueuesList}
+                  interventions={interventionsList}
+                  setInterventions={setInterventionsList}
+                  trips={tripsList}
+                  setTrips={setTripsList}
+                  payments={paymentsList}
+                  setPayments={setPaymentsList}
+                  incidents={incidentsList}
+                  setIncidents={setIncidentsList}
+                  onTriggerNotice={showModal}
+                  triggerVibrate={triggerVibrate}
+                  onSwitchToPassenger={() => setUserRole('passenger')}
+                  onSwitchToDriver={() => setUserRole('driver')}
+                  onSwitchToInspector={() => setUserRole('inspector')}
+                />
               ) : (
                 <>
                   {/* TAB 1: INÍCIO (DRIVER HOME & DISPATCH DASHBOARD)          */}
@@ -2484,14 +2725,14 @@ export default function App() {
                             </div>
                             <div>
                               <h3 className="font-headline-sm text-primary text-sm font-bold">
-                                Carteira FilaPay & Divisão Automática
+                                Gestão Financeira & Divisão Automática
                               </h3>
                               <p className="text-[11px] text-on-surface-variant">
-                                Arrecadação Multicaixa Express em Tempo Real
+                                Arrecadação de Receitas em Tempo Real
                               </p>
                             </div>
                           </div>
-                          <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                          <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
                             Ativo na Baia
                           </span>
                         </div>
@@ -2512,8 +2753,8 @@ export default function App() {
                             onClick={() => {
                               triggerVibrate();
                               showModal(
-                                'Levantamento Multicaixa Express',
-                                `Transferência de ${(dailyRevenueKz + 16000).toLocaleString('pt-AO')} Kz iniciada com sucesso para a conta Multicaixa Express associada ao telefone (+244 923 442 109).`,
+                                'Levantamento de Saldo',
+                                `Transferência de ${(dailyRevenueKz + 16000).toLocaleString('pt-AO')} Kz iniciada com sucesso para a conta bancária associada ao telefone (+244 923 442 109).`,
                                 'account_balance_wallet'
                               );
                             }}
@@ -3826,12 +4067,26 @@ export default function App() {
               ))}
             </div>
 
-            <button
-              onClick={() => setRoleModalOpen(false)}
-              className="w-full py-3 bg-surface-container text-primary font-bold text-xs rounded-xl cursor-pointer"
-            >
-              Fechar
-            </button>
+            <div className="pt-2 border-t border-surface-container flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setRoleModalOpen(false);
+                  handleLogout();
+                }}
+                className="flex-1 py-3 bg-rose-50 text-rose-700 border border-rose-200 font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5 hover:bg-rose-100 active:scale-95 transition-transform"
+              >
+                <span className="material-symbols-outlined text-[16px]">logout</span>
+                <span>Terminar Sessão</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRoleModalOpen(false)}
+                className="flex-1 py-3 bg-surface-container text-primary font-bold text-xs rounded-xl cursor-pointer"
+              >
+                Fechar
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -4446,6 +4701,131 @@ export default function App() {
               >
                 Voltar
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* ===================================================================== */}
+        {/* MODAL: GATEWAY DE PAGAMENTO EMIS / MULTICAIXA EXPRESS & WEBHOOK        */}
+        {/* ===================================================================== */}
+        {emisModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-3xl max-w-md w-full p-5 space-y-4 shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-xl bg-blue-900 text-white flex items-center justify-center font-bold">
+                    <span className="material-symbols-outlined text-[20px]">account_balance</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900">EMIS / Multicaixa Express Gateway</h3>
+                    <p className="text-[10px] text-slate-500">Serviço Interbancário Autorizado de Angola</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEmisModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[18px]">close</span>
+                </button>
+              </div>
+
+              {/* Cabeçalho do Pagamento Gerado */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white space-y-3 shadow-md">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span className="text-[10px] uppercase font-bold text-blue-300 tracking-wider">Referência Interbancária EMIS</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${emisPayment.estado === 'Confirmado' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-950'}`}>
+                    {emisPayment.estado === 'Confirmado' ? '✓ Pago & Conciliado (Webhook)' : '⏳ Aguardando Pagamento'}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs font-semibold text-slate-300 block">{emisPayment.titulo}</span>
+                  <div className="flex items-baseline justify-between mt-1">
+                    <span className="text-2xl font-black text-amber-400">{emisPayment.montanteKz.toLocaleString('pt-AO')} Kz</span>
+                    <span className="text-[11px] font-mono text-slate-300">{emisPayment.id}</span>
+                  </div>
+                </div>
+
+                {/* Dados para pagamento no Multicaixa Express / ATM */}
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-center font-mono">
+                  <div className="bg-white/5 p-2 rounded-xl">
+                    <span className="text-[9px] text-slate-400 block uppercase font-sans">Entidade</span>
+                    <strong className="text-white text-xs">{emisPayment.entidade}</strong>
+                  </div>
+                  <div className="bg-white/5 p-2 rounded-xl">
+                    <span className="text-[9px] text-slate-400 block uppercase font-sans">Referência</span>
+                    <strong className="text-amber-300 text-xs">{emisPayment.referencia}</strong>
+                  </div>
+                  <div className="bg-white/5 p-2 rounded-xl">
+                    <span className="text-[9px] text-slate-400 block uppercase font-sans">Montante</span>
+                    <strong className="text-emerald-300 text-xs">{emisPayment.montanteKz} Kz</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botões de Ação de Cópia */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(`Entidade: ${emisPayment.entidade} | Ref: ${emisPayment.referencia} | Montante: ${emisPayment.montanteKz} Kz`);
+                    showModal('Dados Copiados', 'Dados de pagamento Multicaixa copiados para a área de transferência.', 'content_copy');
+                  }}
+                  className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">content_copy</span>
+                  Copiar Referência
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newRef = `${Math.floor(100 + Math.random() * 900)} ${Math.floor(100 + Math.random() * 900)} ${Math.floor(100 + Math.random() * 900)}`;
+                    setEmisPayment(prev => ({ ...prev, referencia: newRef, estado: 'Pendente' }));
+                    showModal('Nova Referência Gerada', `Ref: ${newRef} gerada com sucesso.`, 'refresh');
+                  }}
+                  className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">refresh</span>
+                  Gerar Nova Ref.
+                </button>
+              </div>
+
+              {/* Secção do Webhook & Simulação de Pagamento Instantâneo */}
+              <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 space-y-3">
+                <div className="flex items-center gap-2 text-blue-900 font-bold text-xs">
+                  <span className="material-symbols-outlined text-[20px]">webhook</span>
+                  <span>Simulação de Webhook API EMIS (Conciliação em Tempo Real)</span>
+                </div>
+                <p className="text-[11px] text-blue-950 leading-relaxed">
+                  No ambiente de produção, quando o cliente efectua o pagamento no Multicaixa Express ou ATM, a EMIS envia um webhook seguro para o nosso servidor. Clique abaixo para simular este pagamento instantâneo:
+                </p>
+
+                {emisPayment.estado === 'Confirmado' ? (
+                  <div className="p-3 bg-emerald-600 text-white rounded-xl text-center space-y-1">
+                    <span className="font-bold text-xs block">✓ PAGAMENTO CONCILIADO COM SUCESSO!</span>
+                    <span className="text-[10px] block opacity-90">Recibo digital oficial emitido e quotas/bilhetes marcados como confirmados.</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSimulateEmisWebhook}
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-transform"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">bolt</span>
+                    <span>Simular Pagamento Instantâneo via Webhook (API EMIS)</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEmisModalOpen(false)}
+                  className="px-5 py-2.5 bg-blue-900 hover:bg-blue-800 text-white font-bold text-xs rounded-xl cursor-pointer"
+                >
+                  Fechar Janela
+                </button>
+              </div>
             </div>
           </div>
         )}

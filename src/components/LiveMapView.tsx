@@ -19,6 +19,7 @@ export interface PracaLocation {
   status: 'Operacional' | 'Movimento Intenso' | 'Moderado' | 'Fila Rápida' | 'Fila Curta';
   corridor: string;
   destinations: string[];
+  taxaKz?: number;
 }
 
 export const LUANDA_PRACAS: PracaLocation[] = [
@@ -33,7 +34,22 @@ export const LUANDA_PRACAS: PracaLocation[] = [
     minEspera: '15-25',
     status: 'Operacional',
     corridor: 'Via Expressa',
-    destinations: ['Mutamba', 'Viana', 'Benfica', 'São Paulo']
+    destinations: ['Mutamba', 'Viana', 'Benfica', 'São Paulo'],
+    taxaKz: 200,
+  },
+  {
+    id: 'cacuaco',
+    name: 'Praça do Cacuaco',
+    subtitle: 'Vila de Cacuaco • Eixo Norte',
+    lat: -8.7811,
+    lng: 13.3712,
+    naFila: 22,
+    noCais: 12,
+    minEspera: '10-15',
+    status: 'Operacional',
+    corridor: 'Estrada de Cacuaco / EN 100',
+    destinations: ['São Paulo', 'Mutamba', 'Viana'],
+    taxaKz: 300,
   },
   {
     id: 'viana',
@@ -46,7 +62,8 @@ export const LUANDA_PRACAS: PracaLocation[] = [
     minEspera: '10-15',
     status: 'Operacional',
     corridor: 'Estrada de Catete',
-    destinations: ['Kilamba', 'Mutamba', 'Cuca', 'São Paulo']
+    destinations: ['Kilamba', 'Mutamba', 'Cuca', 'São Paulo'],
+    taxaKz: 200,
   },
   {
     id: 'mutamba',
@@ -59,7 +76,8 @@ export const LUANDA_PRACAS: PracaLocation[] = [
     minEspera: '~30',
     status: 'Movimento Intenso',
     corridor: 'Baixa de Luanda',
-    destinations: ['Kilamba', 'Benfica', 'Talatona', 'Viana']
+    destinations: ['Kilamba', 'Benfica', 'Talatona', 'Viana'],
+    taxaKz: 200,
   },
   {
     id: 'benfica',
@@ -72,7 +90,8 @@ export const LUANDA_PRACAS: PracaLocation[] = [
     minEspera: '12-18',
     status: 'Operacional',
     corridor: 'EN 100 / Via Expressa',
-    destinations: ['São Paulo', 'Mutamba', 'Kilamba', 'Talatona']
+    destinations: ['São Paulo', 'Mutamba', 'Kilamba', 'Talatona'],
+    taxaKz: 250,
   },
   {
     id: 'talatona',
@@ -85,7 +104,8 @@ export const LUANDA_PRACAS: PracaLocation[] = [
     minEspera: '10-12',
     status: 'Operacional',
     corridor: 'Avenida Pedro de Castro Van-Dúnem Loy',
-    destinations: ['Mutamba', 'Viana', 'Benfica', 'Kilamba']
+    destinations: ['Mutamba', 'Viana', 'Benfica', 'Kilamba'],
+    taxaKz: 200,
   },
   {
     id: 'saopaulo',
@@ -98,7 +118,8 @@ export const LUANDA_PRACAS: PracaLocation[] = [
     minEspera: '15-20',
     status: 'Movimento Intenso',
     corridor: 'Eixo Norte-Centro',
-    destinations: ['Benfica', 'Viana', 'Cacuaco', 'Kilamba']
+    destinations: ['Benfica', 'Viana', 'Cacuaco', 'Kilamba'],
+    taxaKz: 200,
   }
 ];
 

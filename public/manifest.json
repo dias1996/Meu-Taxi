@@ -1,0 +1,21 @@
+{
+  "name": "FilaTáxi Angola",
+  "short_name": "FilaTáxi",
+  "description": "Plataforma oficial de gestão digital de filas de táxi colectivo e geolocalização em tempo real em Luanda, Angola.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0F172A",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=192&h=192&fit=crop&q=80",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=512&h=512&fit=crop&q=80",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

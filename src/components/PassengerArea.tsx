@@ -7,7 +7,6 @@ export interface PassengerProfile {
   email: string;
   biNumber: string;
   avatarUrl: string;
-  preferredPayment: 'Multicaixa Express' | 'Dinheiro Físico';
   notificationChannel: 'WhatsApp' | 'SMS' | 'Ambos';
 }
 
@@ -21,7 +20,7 @@ export interface PassengerTripRecord {
   driverName: string;
   vehicleModel: string;
   amountKz: number;
-  paymentMethod: 'Multicaixa Express' | 'Dinheiro Físico';
+  paymentMethod: 'Dinheiro' | 'Dinheiro Físico';
   paymentRef: string;
   paymentStatus: 'Confirmado' | 'Pendente';
   rating?: number;
@@ -96,7 +95,6 @@ export function PassengerArea({
     biNumber: '004829104LA049',
     avatarUrl:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuC2r3aCmeVJQsl3Z5uxmsUFCQeLTaxPIDu8oVc4rSoQdLYHM1M82pB29lDQnbAS9IXd0j7OgMGZ0hlwiIEiurjt9DdJSV-8Z0MLgoZ_MD519opCYJvy7DcTmxcmanXtazrDbc5AoSSTtzoIi9BSlgMGZ0hlwiIEiurjt9DdJSV-8Z0MLgoZ_MD519opCYJvy7DcTmxcmanXtazrDbc5AoSSTtzoIi9BSlxAHjxTPbKL98c66DoQvFGMmgQWphlUPvhfnXC956Owedq9DAvV14fa0g8UpePUOuvTwYfE5Tene0nnV9ciU3r9H9V1WfQKVnblYig',
-    preferredPayment: 'Multicaixa Express',
     notificationChannel: 'Ambos',
   });
 
@@ -176,8 +174,8 @@ export function PassengerArea({
       driverName: 'João Manuel',
       vehicleModel: 'Toyota Hiace (Azul/Branco)',
       amountKz: 500,
-      paymentMethod: 'Multicaixa Express',
-      paymentRef: 'MCX-829104',
+      paymentMethod: 'Dinheiro',
+      paymentRef: 'TX-829104',
       paymentStatus: 'Confirmado',
       rating: 5,
     },
@@ -191,8 +189,8 @@ export function PassengerArea({
       driverName: 'Mateus Gaspar',
       vehicleModel: 'Toyota Hiace',
       amountKz: 500,
-      paymentMethod: 'Multicaixa Express',
-      paymentRef: 'FLP-39182',
+      paymentMethod: 'Dinheiro',
+      paymentRef: 'TX-39182',
       paymentStatus: 'Confirmado',
       rating: 5,
     },
@@ -206,8 +204,8 @@ export function PassengerArea({
       driverName: 'Domingos Neto',
       vehicleModel: 'Toyota Hiace',
       amountKz: 500,
-      paymentMethod: 'Multicaixa Express',
-      paymentRef: 'MCX-774912',
+      paymentMethod: 'Dinheiro',
+      paymentRef: 'TX-774912',
       paymentStatus: 'Confirmado',
       rating: 4,
     },
@@ -333,8 +331,8 @@ export function PassengerArea({
       driverName: assignedDriver,
       vehicleModel: 'Toyota Hiace (Azul/Branco)',
       amountKz: selectedSeatCount * 500,
-      paymentMethod: profile.preferredPayment,
-      paymentRef: `MCX-${Math.floor(100000 + Math.random() * 900000)}`,
+      paymentMethod: 'Dinheiro',
+      paymentRef: `TX-${Math.floor(100000 + Math.random() * 900000)}`,
       paymentStatus: 'Confirmado',
     };
     setTripHistory([newTrip, ...tripHistory]);
@@ -502,7 +500,7 @@ export function PassengerArea({
                 </button>
               </div>
               <span className="text-[10px] text-on-surface-variant">
-                Protege o seu perfil e o saldo na Carteira FilaPay.
+                Protege o seu perfil e o acesso aos seus pedidos de transporte.
               </span>
             </div>
 
@@ -712,104 +710,8 @@ export function PassengerArea({
 
   return (
     <div className="flex flex-col w-full pb-20">
-      {/* ========================================================= */}
-      {/* BANNER DE ESTADO: CONTA CONFIRMADA & ATIVA               */}
-      {/* ========================================================= */}
-      <div className="mx-gutter mt-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs">
-        <div className="flex items-center gap-1.5 text-emerald-800 font-bold">
-          <span className="material-symbols-outlined text-[18px] text-emerald-600">verified</span>
-          <span className="text-[11px] leading-tight">
-            Conta Confirmada & Ativa ({profile.phone})
-          </span>
-        </div>
-        <button
-          onClick={() => {
-            triggerVibrate();
-            setIsAccountConfirmed(false);
-            setAccountRegisterStep('form');
-            onTriggerNotice('Modo Registo', 'Pode agora testar o registo inicial do passageiro.', 'info');
-          }}
-          className="text-[10px] text-primary font-bold hover:underline cursor-pointer flex items-center gap-0.5 bg-white px-2 py-0.5 rounded shadow-xs"
-          title="Simular Novo Registo de Passageiro do Zero"
-        >
-          <span className="material-symbols-outlined text-[12px]">person_add</span>
-          <span>Simular Registo</span>
-        </button>
-      </div>
 
-      {/* ========================================================= */}
-      {/* PASSENGER TOP SUB-NAVIGATION TABS                         */}
-      {/* ========================================================= */}
-      <div className="sticky top-16 z-30 bg-surface/95 backdrop-blur-md px-gutter pt-2 pb-2.5 border-b border-surface-container">
-        <div className="bg-surface-container-low p-1 rounded-xl flex items-center shadow-inner">
-          <button
-            onClick={() => {
-              triggerVibrate();
-              setActivePassengerTab('solicitar');
-            }}
-            className={`flex-1 py-2 rounded-lg font-label-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              activePassengerTab === 'solicitar'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-primary'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">travel_explore</span>
-            <span>Solicitar</span>
-          </button>
 
-          <button
-            onClick={() => {
-              triggerVibrate();
-              setActivePassengerTab('minha-fila');
-            }}
-            className={`flex-1 py-2 rounded-lg font-label-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative cursor-pointer ${
-              activePassengerTab === 'minha-fila'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-primary'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">format_list_numbered</span>
-            <span>Minha Fila</span>
-            {inPassengerQueue && (
-              <span
-                className={`w-2 h-2 rounded-full absolute top-1.5 right-1.5 ${
-                  isPassengerTurn ? 'bg-secondary animate-ping' : 'bg-emerald-500'
-                }`}
-              />
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              triggerVibrate();
-              setActivePassengerTab('historico');
-            }}
-            className={`flex-1 py-2 rounded-lg font-label-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              activePassengerTab === 'historico'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-primary'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">receipt_long</span>
-            <span>Histórico</span>
-          </button>
-
-          <button
-            onClick={() => {
-              triggerVibrate();
-              setActivePassengerTab('perfil');
-            }}
-            className={`flex-1 py-2 rounded-lg font-label-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              activePassengerTab === 'perfil'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-primary'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">account_circle</span>
-            <span>Conta</span>
-          </button>
-        </div>
-      </div>
 
       {/* ========================================================= */}
       {/* 1. TAB: SOLICITAR VIAGEM & CONSULTAR PRAÇAS/ROTAS         */}
@@ -836,7 +738,7 @@ export function PassengerArea({
                 </h3>
                 <span className="text-[11px] text-secondary-container font-medium flex items-center gap-1 mt-0.5">
                   <span className="material-symbols-outlined text-[13px]">verified</span>
-                  Passageiro Verificado • Multicaixa
+                  Passageiro Verificado
                 </span>
               </div>
             </div>
@@ -938,54 +840,44 @@ export function PassengerArea({
               </div>
             </div>
 
-            {/* Action Buttons Cluster */}
-            <div className="grid grid-cols-2 gap-2 pt-2">
+            {/* Action Buttons Cluster & SOS Panic Button */}
+            <div className="grid grid-cols-3 gap-2 pt-2">
               <button
                 onClick={handleJoinQueue}
-                className="py-3 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-transform cursor-pointer"
+                className="py-3 px-2 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-md active:scale-95 transition-transform cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px] text-secondary-container">
                   confirmation_number
                 </span>
-                <span>Entrar na Fila Virtual</span>
+                <span>Fila Virtual</span>
               </button>
 
               <button
                 onClick={() => onOpenFilaPass(currentOriginPraca)}
-                className="py-3 rounded-xl bg-secondary-container hover:bg-secondary text-on-secondary-fixed font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-transform cursor-pointer"
+                className="py-3 px-2 rounded-xl bg-secondary-container hover:bg-secondary text-on-secondary-fixed font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-md active:scale-95 transition-transform cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">
                   airplane_ticket
                 </span>
-                <span>FilaPass (Reserva)</span>
+                <span>FilaPass</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  triggerVibrate();
+                  onOpenSos();
+                }}
+                className="py-3 px-2 rounded-xl bg-error hover:bg-red-700 text-white font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-md active:scale-95 transition-transform cursor-pointer"
+                title="Botão de Pânico / SOS de Emergência"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  e911_emergency
+                </span>
+                <span>SOS Pânico</span>
               </button>
             </div>
 
-            {/* Viagem Imediata / Chamar Táxi Direto */}
-            <button
-              onClick={() => {
-                triggerVibrate();
-                const token = `P-01`;
-                setQueueTokenNumber(token);
-                setPassengersAhead(0);
-                setEstimatedWaitMin(0);
-                setInPassengerQueue(true);
-                setIsPassengerTurn(true);
-                setActivePassengerTab('minha-fila');
-                const order = registerTransportOrder('Embarque Direto', 'Viatura Atribuída');
-                onTriggerNotice(
-                  'Pedido Registado no Sistema!',
-                  `Registo ${order.id}: ${currentOriginPraca.name} → ${currentDestName} (${order.data} às ${order.hora}). Embarque autorizado na ${assignedBay} com viatura ${assignedTaxiPlate}. Estado: Viatura Atribuída.`,
-                  'local_taxi'
-                );
-              }}
-              className="w-full py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[17px] text-secondary">
-                flash_on
-              </span>
-              <span>Solicitar Embarque Direto / Próximo Táxi Livre</span>
-            </button>
+
           </section>
 
           {/* ========================================================= */}
@@ -1546,9 +1438,32 @@ export function PassengerArea({
       {/* 4. TAB: CONTA DO PASSAGEIRO & GESTÃO DE DADOS             */}
       {/* ========================================================= */}
       {activePassengerTab === 'perfil' && (
-        <div className="flex flex-col px-gutter pt-3 space-y-space-md">
-          {/* Cartão de Identificação VIP do Passageiro */}
-          <div className="bg-gradient-to-br from-primary via-primary-container to-primary text-on-primary p-5 rounded-2xl shadow-lg relative overflow-hidden space-y-4">
+        <div className="flex flex-col px-gutter pt-3 space-y-4">
+          {/* BANNER DE ESTADO: CONTA CONFIRMADA & ATIVA (Exclusivo da opção Conta) */}
+          <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs shadow-xs">
+            <div className="flex items-center gap-1.5 text-emerald-800 font-bold">
+              <span className="material-symbols-outlined text-[18px] text-emerald-600">verified</span>
+              <span className="text-[11px] leading-tight">
+                Conta Confirmada & Ativa ({profile.phone})
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                triggerVibrate();
+                setIsAccountConfirmed(false);
+                setAccountRegisterStep('form');
+                onTriggerNotice('Modo Registo', 'Pode agora testar o registo inicial do passageiro.', 'info');
+              }}
+              className="text-[10px] text-primary font-bold hover:underline cursor-pointer flex items-center gap-0.5 bg-white px-2 py-0.5 rounded shadow-xs"
+              title="Simular Novo Registo de Passageiro do Zero"
+            >
+              <span className="material-symbols-outlined text-[12px]">person_add</span>
+              <span>Simular Registo</span>
+            </button>
+          </div>
+
+          {/* Cartão Digital do Passageiro com Borda Elegante */}
+          <div className="bg-gradient-to-br from-primary via-primary-container to-primary text-on-primary p-5 rounded-2xl shadow-md border border-primary-container/40 relative overflow-hidden space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-secondary-container text-[20px]">
@@ -1558,7 +1473,7 @@ export function PassengerArea({
                   Cartão Digital do Passageiro
                 </span>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase">
+              <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase backdrop-blur-xs">
                 Utilizador VIP
               </span>
             </div>
@@ -1581,106 +1496,79 @@ export function PassengerArea({
             </div>
           </div>
 
-          {/* Dados do Registo & Preferências */}
-          <div className="bg-surface-container-lowest p-4 rounded-2xl shadow-sm space-y-3">
-            <div className="flex items-center justify-between pb-1 border-b border-surface-container">
-              <span className="text-xs font-bold text-primary">Dados Pessoais Registados</span>
-              <button
-                onClick={() => setEditProfileModalOpen(true)}
-                className="text-xs font-bold text-secondary flex items-center gap-0.5 hover:underline cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[15px]">edit</span>
-                Editar Dados
-              </button>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between py-1">
-                <span className="text-on-surface-variant">Nome Completo:</span>
-                <strong className="text-primary">{profile.name}</strong>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-on-surface-variant">N.º de Telemóvel:</span>
-                <strong className="text-primary font-mono">{profile.phone}</strong>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-on-surface-variant">Palavra-passe:</span>
-                <div className="flex items-center gap-1.5 font-mono text-primary font-bold">
-                  <span>{showPassword ? regPassword : '••••••••'}</span>
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-secondary hover:underline text-[11px] cursor-pointer"
-                  >
-                    {showPassword ? 'ocultar' : 'ver'}
-                  </button>
+          {/* Dados do Passageiro (Box com bordas organizadas e sem poluição) */}
+          <div className="bg-surface-container-lowest rounded-2xl shadow-sm border border-surface-container overflow-hidden">
+            <div className="p-4 flex items-center justify-between border-b border-surface-container bg-surface-container-lowest">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">account_circle</span>
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-primary">Dados Pessoais Registados</h4>
+                  <span className="text-[10px] text-on-surface-variant block">Identificação e contacto do titular</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-on-surface-variant">Termos de Utilização:</span>
-                <button
-                  type="button"
-                  onClick={() => setTermsModalOpen(true)}
-                  className="text-emerald-700 font-bold hover:underline cursor-pointer flex items-center gap-0.5"
-                >
-                  <span className="material-symbols-outlined text-[14px]">verified</span>
-                  Aceites (Ver Termos)
-                </button>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-on-surface-variant">E-mail:</span>
-                <strong className="text-primary">{profile.email}</strong>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-on-surface-variant">B.I. / NIF:</span>
-                <strong className="text-primary font-mono">{profile.biNumber}</strong>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-on-surface-variant">Pagamento Padrão:</span>
-                <strong className="text-secondary">{profile.preferredPayment}</strong>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-on-surface-variant">Notificações:</span>
-                <strong className="text-emerald-700">{profile.notificationChannel}</strong>
-              </div>
-            </div>
-
-            {/* Ação de Simular Novo Registo do Zero */}
-            <div className="pt-2 border-t border-surface-container flex gap-2">
               <button
-                onClick={() => {
-                  triggerVibrate();
-                  setIsAccountConfirmed(false);
-                  setAccountRegisterStep('form');
-                  onTriggerNotice('Modo Registo', 'Ecrã de registo ativado. Pode preencher dados e testar confirmação.', 'info');
-                }}
-                className="flex-1 py-2 rounded-xl bg-surface-container-low text-primary font-bold text-xs flex items-center justify-center gap-1 hover:bg-surface-container cursor-pointer"
+                onClick={() => setEditProfileModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-xs font-bold text-secondary flex items-center gap-1 transition-colors cursor-pointer border border-surface-container"
               >
-                <span className="material-symbols-outlined text-[16px] text-secondary">person_add</span>
-                <span>Simular Novo Registo</span>
-              </button>
-              <button
-                onClick={() => {
-                  triggerVibrate();
-                  setTariffGuideModalOpen(true);
-                }}
-                className="flex-1 py-2 rounded-xl bg-secondary-container text-on-secondary-fixed font-bold text-xs flex items-center justify-center gap-1 cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">menu_book</span>
-                <span>Consultar Tarifas</span>
+                <span className="material-symbols-outlined text-[14px]">edit</span>
+                <span>Editar Dados</span>
               </button>
             </div>
-          </div>
 
-          {/* Atalhos de Ação Rápida */}
-          <div>
-            <button
-              onClick={() => onOpenSos()}
-              className="w-full p-3 rounded-xl bg-error-container text-on-error-container font-bold text-xs flex items-center justify-center gap-1.5 active:opacity-90 cursor-pointer shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">shield</span>
-              <span>SOS & Segurança</span>
-            </button>
+            <div className="p-4 divide-y divide-surface-container space-y-0 text-xs">
+              <div className="flex items-center justify-between py-2.5 first:pt-0">
+                <span className="text-on-surface-variant flex items-center gap-1.5 font-medium">
+                  <span className="material-symbols-outlined text-[16px] text-outline">person</span>
+                  Nome Completo:
+                </span>
+                <strong className="text-primary font-bold">{profile.name}</strong>
+              </div>
+
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-on-surface-variant flex items-center gap-1.5 font-medium">
+                  <span className="material-symbols-outlined text-[16px] text-outline">call</span>
+                  N.º de Telemóvel:
+                </span>
+                <strong className="text-primary font-mono font-bold">{profile.phone}</strong>
+              </div>
+
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-on-surface-variant flex items-center gap-1.5 font-medium">
+                  <span className="material-symbols-outlined text-[16px] text-outline">mail</span>
+                  E-mail:
+                </span>
+                <strong className="text-primary font-bold">{profile.email}</strong>
+              </div>
+
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-on-surface-variant flex items-center gap-1.5 font-medium">
+                  <span className="material-symbols-outlined text-[16px] text-outline">badge</span>
+                  B.I. / NIF:
+                </span>
+                <strong className="text-primary font-mono font-bold">{profile.biNumber}</strong>
+              </div>
+
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-on-surface-variant flex items-center gap-1.5 font-medium">
+                  <span className="material-symbols-outlined text-[16px] text-outline">notifications</span>
+                  Notificações:
+                </span>
+                <strong className="text-primary font-bold">{profile.notificationChannel}</strong>
+              </div>
+
+              <div className="flex items-center justify-between py-2.5 last:pb-0">
+                <span className="text-on-surface-variant flex items-center gap-1.5 font-medium">
+                  <span className="material-symbols-outlined text-[16px] text-outline">verified_user</span>
+                  Estado da Conta:
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  Ativa & Verificada
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -1736,26 +1624,9 @@ export function PassengerArea({
             </div>
 
             <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pb-1 border-b border-surface-container">
                 <span className="font-bold text-primary">Preencha os seus dados de passageiro:</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfile({
-                      name: '',
-                      phone: '+244 9',
-                      email: '',
-                      biNumber: '',
-                      avatarUrl:
-                        'https://lh3.googleusercontent.com/aida-public/AB6AXuC2r3aCmeVJQsl3Z5uxmsUFCQeLTaxPIDu8oVc4rSoQdLYHM1M82pB29lDQnbAS9IXd0j7OgMGZ0hlwiIEiurjt9DdJSV-8Z0MLgoZ_MD519opCYJvy7DcTmxcmanXtazrDbc5AoSSTtzoIi9BSlxAHjxTPbKL98c66DoQvFGMmgQWphlUPvhfnXC956Owedq9DAvV14fa0g8UpePUOuvTwYfE5Tene0nnV9ciU3r9H9V1WfQKVnblYig',
-                      preferredPayment: 'Multicaixa Express',
-                      notificationChannel: 'Ambos',
-                    });
-                  }}
-                  className="text-[11px] text-secondary font-bold hover:underline cursor-pointer"
-                >
-                  Criar Conta Nova (Limpar)
-                </button>
+                <span className="text-[10px] text-on-surface-variant font-medium">Todos os campos são atualizados em direto</span>
               </div>
 
               <div className="space-y-1">
@@ -1797,44 +1668,6 @@ export function PassengerArea({
                   onChange={(e) => setProfile({ ...profile, biNumber: e.target.value })}
                   className="w-full h-11 px-3 rounded-xl bg-surface-container-low text-primary font-medium focus:outline-none"
                 />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-primary">Método de Pagamento Preferido</label>
-                <select
-                  value={profile.preferredPayment}
-                  onChange={(e) =>
-                    setProfile({
-                      ...profile,
-                      preferredPayment: e.target.value as any,
-                    })
-                  }
-                  className="w-full h-11 px-3 rounded-xl bg-surface-container-low text-primary font-medium focus:outline-none"
-                >
-                  <option value="Multicaixa Express">Multicaixa Express</option>
-                  <option value="Dinheiro Físico">Dinheiro Físico</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-primary">Palavra-passe</label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    className="w-full h-11 pl-3 pr-10 rounded-xl bg-surface-container-low text-primary font-mono focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-outline hover:text-primary cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showPassword ? 'visibility_off' : 'visibility'}
-                    </span>
-                  </button>
-                </div>
               </div>
 
               <div className="space-y-1">
@@ -2003,7 +1836,7 @@ export function PassengerArea({
                   3. Tarifário Oficial e Pagamento Digital
                 </strong>
                 <p>
-                  A tarifa regulamentada para a malha urbana de Luanda é de 500 Kz por passageiro/assento. O pagamento pode ser feito de forma instantânea via Multicaixa Express, Carteira FilaPay ou numerário.
+                  A tarifa regulamentada para a malha urbana de Luanda é de 500 Kz por passageiro/assento. O pagamento pode ser feito de forma instantânea via Express ou numerário.
                 </p>
               </div>
 
